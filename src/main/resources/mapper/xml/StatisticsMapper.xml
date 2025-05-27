@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.StatisticsMapper">
+
+    <!-- 累计总成交量和总成交额 -->
+    <select id="selectTotalVolumeAndAmount" resultType="map">
+        SELECT IFNULL(SUM(quantity),0) AS totalVolume, IFNULL(SUM(total_price),0) AS totalAmount
+        FROM `order`
+    </select>
+
+    <!-- 今日成交量和成交额 -->
+    <select id="selectTodayVolumeAndAmount" resultType="map">
+        SELECT IFNULL(SUM(quantity),0) AS todayVolume, IFNULL(SUM(total_price),0) AS todayAmount
+        FROM `order`
+        WHERE DATE(create_time) = CURDATE()
+    </select>
+
+    <!-- 每日成交量和成交额趋势，近N天 -->
+    <select id="selectTrendVolumeAndAmount" resultType="map" parameterType="int">
+        SELECT DATE(create_time) AS day,
+               IFNULL(SUM(quantity),0) AS volume,
+               IFNULL(SUM(total_price),0) AS amount
+        FROM `order`
+        WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        GROUP BY day
+        ORDER BY day ASC
+    </select>
+
+    <!-- 单品销量排行（按商品ID） -->
+    <select id="selectProductRank" resultType="map" parameterType="int">
+        SELECT
+            p.id AS productId,
+            p.name AS productName,
+            p.type AS productType,
+            pm.current_price AS price,
+            o.merchant_id AS merchantId,
+            m.name AS merchantName,
+            SUM(o.quantity) AS totalVolume
+        FROM products p
+        JOIN `order` o ON o.product_id = p.id
+        JOIN merchants m ON o.merchant_id = m.id
+        JOIN product_merchants pm ON (pm.product_id = p.id AND pm.merchant_id = m.id)
+        GROUP BY p.id, o.merchant_id
+        ORDER BY totalVolume DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 品类销量排行（按type） -->
+    <select id="selectTypeRank" resultType="map" parameterType="int">
+        SELECT
+            p.type AS productType,
+            SUM(o.quantity) AS totalVolume
+        FROM products p
+        JOIN `order` o ON o.product_id = p.id
+        GROUP BY p.type
+        ORDER BY totalVolume DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 某品类在各商户的销量排行 -->
+    <select id="selectTypeMerchantRank" resultType="map" parameterType="map">
+        SELECT
+            m.id AS merchantId,
+            m.name AS merchantName,
+            SUM(o.quantity) AS totalVolume
+        FROM products p
+        JOIN `order` o ON o.product_id = p.id
+        JOIN merchants m ON o.merchant_id = m.id
+        WHERE p.type = #{type}
+        GROUP BY m.id
+        ORDER BY totalVolume DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper> 

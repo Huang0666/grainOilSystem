@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.PriceHistoryMapper">
+
+    <resultMap id="BaseResultMap" type="org.example.grainoilsystem.entity.PriceHistory">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="price" property="price"/>
+        <result column="record_time" property="recordTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_id, price, record_time
+    </sql>
+
+    <insert id="insert" parameterType="org.example.grainoilsystem.entity.PriceHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into product_price_history (product_id, price, record_time)
+        values (#{productId}, #{price}, #{recordTime})
+    </insert>
+
+    <select id="selectPriceTrend" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_price_history
+        where product_id = #{productId}
+        and record_time &gt;= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        order by record_time asc
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_price_history
+        <where>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+            <if test="startTime != null">
+                and record_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and record_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by record_time desc
+        <if test="offset != null and size != null">
+            limit #{offset}, #{size}
+        </if>
+    </select>
+
+    <select id="countList" resultType="java.lang.Integer">
+        select count(*)
+        from product_price_history
+        <where>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+            <if test="startTime != null">
+                and record_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and record_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPriceTrendByProduct" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from product_price_history
+        where product_id = #{productId}
+        and record_time &gt;= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        order by record_time asc
+    </select>
+
+    <select id="selectDistinctProductIds" resultType="java.lang.Integer">
+        select distinct product_id from product_price_history
+    </select>
+
+</mapper> 

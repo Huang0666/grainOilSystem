@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.UserMapper">
+
+    <select id="selectByUsernameAndPassword" resultType="org.example.grainoilsystem.entity.User">
+        SELECT * FROM user WHERE username = #{username} AND password = #{password}
+    </select>
+
+    <select id="selectByUsername" resultType="org.example.grainoilsystem.entity.User">
+        SELECT * FROM user WHERE username = #{username}
+    </select>
+
+    <insert id="insertUser" parameterType="org.example.grainoilsystem.entity.User">
+        INSERT INTO user (username, password, role, phone)
+        VALUES (#{username}, #{password}, #{role}, #{phone})
+    </insert>
+
+    <update id="updateUser" parameterType="org.example.grainoilsystem.entity.User">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="phone != null">phone = #{phone},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+    <select id="selectUserList" resultType="org.example.grainoilsystem.entity.User" parameterType="map">
+        SELECT * FROM user
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="role != null and role != ''">
+                AND role = #{role}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countUserList" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM user
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="role != null and role != ''">
+                AND role = #{role}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUserById" resultType="org.example.grainoilsystem.entity.User">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+
+    <update id="updateUserPassword">
+        UPDATE user SET password = #{password} WHERE id = #{id}
+    </update>
+
+</mapper> 

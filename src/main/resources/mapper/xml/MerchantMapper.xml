@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.MerchantMapper">
+
+    <insert id="insertMerchant" parameterType="org.example.grainoilsystem.entity.Merchant">
+        INSERT INTO merchants (name, phone)
+        VALUES (#{name}, #{phone})
+    </insert>
+
+    <update id="updateMerchant" parameterType="org.example.grainoilsystem.entity.Merchant">
+        UPDATE merchants
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="phone != null">phone = #{phone},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteMerchantById">
+        DELETE FROM merchants WHERE id = #{id}
+    </delete>
+
+    <select id="selectMerchantList" resultType="org.example.grainoilsystem.entity.Merchant" parameterType="map">
+        SELECT * FROM merchants
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countMerchantList" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM merchants
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMerchantById" resultType="org.example.grainoilsystem.entity.Merchant">
+        SELECT * FROM merchants WHERE id = #{id}
+    </select>
+
+</mapper> 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="org.example.grainoilsystem.entity.Comment">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertComment" parameterType="org.example.grainoilsystem.entity.Comment">
+        INSERT INTO comment (user_id, product_id, merchant_id, content, create_time)
+        VALUES (#{userId}, #{productId}, #{merchantId}, #{content}, #{createTime})
+    </insert>
+
+    <select id="selectCommentsByProductAndMerchant" resultMap="BaseResultMap">
+        SELECT * FROM comment 
+        WHERE product_id = #{productId} AND merchant_id = #{merchantId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countCommentByProductAndMerchant" resultType="int">
+        SELECT COUNT(*) FROM comment 
+        WHERE product_id = #{productId} AND merchant_id = #{merchantId}
+    </select>
+
+    <select id="selectComment" resultMap="BaseResultMap">
+        SELECT * FROM comment 
+        WHERE user_id = #{userId} AND product_id = #{productId} AND merchant_id = #{merchantId}
+        LIMIT 1
+    </select>
+
+    <delete id="deleteComment">
+        DELETE FROM comment 
+        WHERE user_id = #{userId} AND product_id = #{productId} AND merchant_id = #{merchantId}
+    </delete>
+
+</mapper> 

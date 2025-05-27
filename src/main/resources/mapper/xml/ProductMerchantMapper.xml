@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.ProductMerchantMapper">
+    
+    <resultMap id="BaseResultMap" type="org.example.grainoilsystem.entity.ProductMerchant">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="status" property="status"/>
+        <result column="current_price" property="currentPrice"/>
+        <result column="record_time" property="recordTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, product_id, merchant_id, status, current_price, record_time
+    </sql>
+
+    <!-- 插入操作 -->
+    <insert id="insert" parameterType="org.example.grainoilsystem.entity.ProductMerchant" useGeneratedKeys="true" keyProperty="id">
+        insert into product_merchants (product_id, merchant_id, status, current_price, record_time)
+        values (#{productId}, #{merchantId}, #{status}, #{currentPrice}, NOW())
+    </insert>
+
+    <!-- 更新操作 -->
+    <update id="update" parameterType="org.example.grainoilsystem.entity.ProductMerchant">
+        update product_merchants
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="currentPrice != null">current_price = #{currentPrice},</if>
+            record_time = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 更新状态 -->
+    <update id="updateStatus">
+        update product_merchants
+        set status = #{status},
+            record_time = NOW()
+        where id = #{id}
+    </update>
+
+    <!-- 删除操作 -->
+    <delete id="deleteById">
+        delete from product_merchants where id = #{id}
+    </delete>
+
+    <delete id="deleteByProductId">
+        delete from product_merchants where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteByMerchantId">
+        delete from product_merchants where merchant_id = #{merchantId}
+    </delete>
+
+    <!-- 查询操作 -->
+    <select id="selectById" resultType="org.example.grainoilsystem.entity.ProductMerchant">
+        SELECT pm.*, p.name as product_name, p.type as product_type, m.name as merchant_name
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        WHERE pm.id = #{id}
+    </select>
+
+    <select id="selectByProductId" resultType="org.example.grainoilsystem.entity.ProductMerchant">
+        SELECT pm.*, p.name as product_name, p.type as product_type, m.name as merchant_name
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        WHERE pm.product_id = #{productId}
+    </select>
+
+    <select id="selectByMerchantId" resultType="org.example.grainoilsystem.entity.ProductMerchant">
+        SELECT pm.*, p.name as product_name, p.type as product_type, m.name as merchant_name
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        WHERE pm.merchant_id = #{merchantId}
+    </select>
+
+    <select id="selectByProductAndMerchant" resultType="org.example.grainoilsystem.entity.ProductMerchant">
+        SELECT pm.*, p.name as product_name, p.type as product_type, m.name as merchant_name
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        WHERE pm.product_id = #{productId} AND pm.merchant_id = #{merchantId}
+    </select>
+
+    <select id="selectList" resultType="org.example.grainoilsystem.entity.ProductMerchant">
+        SELECT 
+            pm.*, 
+            p.name as product_name, 
+            p.type as product_type, 
+            m.name as merchant_name
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        <where>
+            <if test="productId != null">
+                AND pm.product_id = #{productId}
+            </if>
+            <if test="merchantId != null">
+                AND pm.merchant_id = #{merchantId}
+            </if>
+            <if test="status != null">
+                AND pm.status = #{status}
+            </if>
+            <if test="productType != null and productType != ''">
+                AND p.type = #{productType}
+            </if>
+            <if test="merchantName != null and merchantName != ''">
+                AND m.name LIKE CONCAT('%', #{merchantName}, '%')
+            </if>
+            <if test="productName != null and productName != ''">
+                AND p.name LIKE CONCAT('%', #{productName}, '%')
+            </if>
+        </where>
+        ORDER BY pm.id DESC
+        <if test="offset != null and size != null">
+            LIMIT #{offset}, #{size}
+        </if>
+    </select>
+
+    <select id="countList" resultType="int">
+        SELECT COUNT(*)
+        FROM product_merchants pm
+        LEFT JOIN products p ON pm.product_id = p.id
+        LEFT JOIN merchants m ON pm.merchant_id = m.id
+        <where>
+            <if test="productId != null">
+                AND pm.product_id = #{productId}
+            </if>
+            <if test="merchantId != null">
+                AND pm.merchant_id = #{merchantId}
+            </if>
+            <if test="status != null">
+                AND pm.status = #{status}
+            </if>
+            <if test="productType != null and productType != ''">
+                AND p.type = #{productType}
+            </if>
+            <if test="merchantName != null and merchantName != ''">
+                AND m.name LIKE CONCAT('%', #{merchantName}, '%')
+            </if>
+            <if test="productName != null and productName != ''">
+                AND p.name LIKE CONCAT('%', #{productName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper> 

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.grainoilsystem.mapper.AnnouncementMapper">
+
+    <resultMap id="BaseResultMap" type="org.example.grainoilsystem.entity.Announcement">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="is_top" property="isTop"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, title, content, is_top, create_time
+    </sql>
+
+    <insert id="insertAnnouncement" parameterType="org.example.grainoilsystem.entity.Announcement">
+        INSERT INTO announcement (title, content, create_time)
+        VALUES (#{title}, #{content}, #{createTime})
+    </insert>
+
+    <delete id="deleteAnnouncement">
+        DELETE FROM announcement WHERE id = #{id}
+    </delete>
+
+    <update id="updateAnnouncement" parameterType="org.example.grainoilsystem.entity.Announcement">
+        UPDATE announcement
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAnnouncementTop">
+        UPDATE announcement SET is_top = #{isTop} WHERE id = #{id}
+    </update>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM announcement
+        <where>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="isTop != null">
+                AND is_top = #{isTop}
+            </if>
+        </where>
+        ORDER BY is_top DESC, create_time DESC
+        <if test="offset != null and size != null">
+            LIMIT #{offset}, #{size}
+        </if>
+    </select>
+
+    <select id="countList" resultType="int">
+        SELECT COUNT(*)
+        FROM announcement
+        <where>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="isTop != null">
+                AND is_top = #{isTop}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM announcement
+        WHERE id = #{id}
+    </select>
+
+</mapper> 
